@@ -1,0 +1,181 @@
+basePath: /
+definitions:
+  handlers.DeviceRequest:
+    properties:
+      adid:
+        example: dbdf14cc-a5e7-445f-a972-2112ab335b14
+        type: string
+      app_id:
+        example: 407f8f90-d83b-4ad5-912c-556a27c8f249
+        type: string
+      app_version:
+        example: 2.1.1
+        type: string
+      country:
+        example: IR
+        type: string
+      device_model:
+        example: SM-989F
+        type: string
+      device_os:
+        example: Android
+        type: string
+      device_os_version:
+        example: "8.0"
+        type: string
+      device_type:
+        example: android | ios | web
+        type: string
+      device_vendor:
+        example: Samsung
+        type: string
+      external_user_id:
+        example: u-12
+        type: string
+      external_user_id_hash:
+        example: xxxxxxxx
+        type: string
+      identifier:
+        example: APA91bHbYHk7aq-Uam_2pyJ2qbZvqllyyh2wjfPRaw5gLEX2SUlQBRvOc6sck1sa7H7nGeLNlDco8lXj83HWWwzV...
+        type: string
+      language:
+        example: fa
+        type: string
+      lat:
+        example: 54.123456
+        type: number
+      long:
+        example: 35.123456
+        type: number
+      notification_types:
+        example: 1
+        type: integer
+      sdk:
+        example: "1.0"
+        type: string
+      session_count:
+        example: 1
+        type: integer
+      tags:
+        additionalProperties:
+          type: string
+        type: object
+      timezone:
+        example: 12600
+        type: integer
+    required:
+    - app_id
+    - device_type
+    - identifier
+    type: object
+  handlers.HealthCheckResponse:
+    properties:
+      binary_uptime:
+        type: string
+      build_time:
+        type: string
+      container:
+        type: string
+      git_commit:
+        type: string
+      go_version:
+        type: string
+      kernel_uptime:
+        type: string
+      load_average_fifteen:
+        type: number
+      load_average_five:
+        type: number
+      load_average_one:
+        type: number
+      status:
+        type: string
+    type: object
+  rest.StandardResponse:
+    properties:
+      data:
+        type: object
+      errors:
+        items:
+          type: string
+        type: array
+      message:
+        type: string
+      status:
+        example: 0
+        type: integer
+    type: object
+host: localhost:6060
+info:
+  contact:
+    email: ali.kaviani@gmail.com
+    name: API Support
+  description: Ratatoskr SDK Public REST APIs(Bifrost)
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Ratatoskr(Bifrost)
+  version: "1.0"
+paths:
+  /:
+    get:
+      consumes:
+      - application/json
+      description: Pod/Container health check
+      operationId: handle_health_check
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success Result
+          schema:
+            allOf:
+            - $ref: '#/definitions/rest.StandardResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/handlers.HealthCheckResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/rest.StandardResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.StandardResponse'
+      summary: Pod/Container health check
+      tags:
+      - General
+  /v1/devices:
+    post:
+      consumes:
+      - application/json
+      description: Register a new device to one of your Ratatosk apps
+      operationId: handle_add_device
+      parameters:
+      - description: Create Device Request
+        in: body
+        name: Device
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.DeviceRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success Result
+          schema:
+            $ref: '#/definitions/rest.StandardResponse'
+        "400":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/rest.StandardResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.StandardResponse'
+      summary: Register a new device to one of your Ratatosk apps
+      tags:
+      - Devices
+swagger: "2.0"

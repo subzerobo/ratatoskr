@@ -1,0 +1,697 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "Ratatoskr WebPanel(Yggdrasil) Rest API",
+        "title": "Ratatoskr(Yggdrasil)",
+        "termsOfService": "http://swagger.io/terms/",
+        "contact": {
+            "name": "API Support",
+            "email": "ali.kaviani@gmail.com"
+        },
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        },
+        "version": "1.0"
+    },
+    "host": "localhost:5050",
+    "basePath": "/",
+    "paths": {
+        "/": {
+            "get": {
+                "description": "Pod/Container health check",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "General"
+                ],
+                "summary": "Pod/Container health check",
+                "operationId": "handle_health_check",
+                "responses": {
+                    "200": {
+                        "description": "Success Result",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/rest.StandardResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/handlers.HealthCheckResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/rest.StandardResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/rest.StandardResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/applications": {
+            "get": {
+                "security": [
+                    {
+                        "BearerToken": []
+                    }
+                ],
+                "description": "Lists all of account registered applications",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Applications"
+                ],
+                "summary": "Lists all of account registered applications",
+                "operationId": "handle_list_my_applications",
+                "responses": {
+                    "200": {
+                        "description": "Success Result",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/rest.StandardResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/handlers.ApplicationResponse"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/rest.StandardResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerToken": []
+                    }
+                ],
+                "description": "Create new application for logged-in account",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Applications"
+                ],
+                "summary": "Create new application for logged-in account",
+                "operationId": "handle_create_application",
+                "parameters": [
+                    {
+                        "description": "Create Application Request",
+                        "name": "Application",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ApplicationRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success Result",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/rest.StandardResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/handlers.ApplicationResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Validation error",
+                        "schema": {
+                            "$ref": "#/definitions/rest.StandardResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/rest.StandardResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/applications/{uuid}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerToken": []
+                    }
+                ],
+                "description": "Gets the general info about specific application uuid",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Applications"
+                ],
+                "summary": "Gets the general info about specific application uuid",
+                "operationId": "handle_get_application_detail",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "UUID of user-owned application",
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success Result",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/rest.StandardResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/handlers.ApplicationResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/rest.StandardResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/rest.StandardResponse"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "BearerToken": []
+                    }
+                ],
+                "description": "Updates the Auth token with new one",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Applications"
+                ],
+                "summary": "Updates the Auth token with new one",
+                "operationId": "handle_reset_auth_token",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "UUID of user-owned application",
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success Result",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/rest.StandardResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/handlers.AuthKeyResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/rest.StandardResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/applications/{uuid}/{status}": {
+            "put": {
+                "security": [
+                    {
+                        "BearerToken": []
+                    }
+                ],
+                "description": "Updates Identity verification",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Applications"
+                ],
+                "summary": "Updates Identity verification",
+                "operationId": "handle_update_identity_verification",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "UUID of user-owned application",
+                        "name": "status",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Status of Identity verification",
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success Result",
+                        "schema": {
+                            "$ref": "#/definitions/rest.StandardResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/rest.StandardResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/auth/login": {
+            "post": {
+                "description": "Login user using email and password combination",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Login user using email and password combination",
+                "operationId": "handle_login",
+                "parameters": [
+                    {
+                        "description": "Login Request Payload",
+                        "name": "EventMessage",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.LoginRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success Result",
+                        "schema": {
+                            "$ref": "#/definitions/rest.StandardResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "validation error",
+                        "schema": {
+                            "$ref": "#/definitions/rest.StandardResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "invalid credentials",
+                        "schema": {
+                            "$ref": "#/definitions/rest.StandardResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "account is not active or email is not confirmed",
+                        "schema": {
+                            "$ref": "#/definitions/rest.StandardResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/rest.StandardResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/auth/oauth/{provider}": {
+            "get": {
+                "description": "This endpoint generate an URL for the specified provider name on the url",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Authentication"
+                ],
+                "operationId": "handle_oauth_step1",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "OAuth provider name (google,..)",
+                        "name": "provider",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success Result",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/rest.StandardResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/handlers.OauthRedirectResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Validation error(s)",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/rest.StandardResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/auth/signup": {
+            "post": {
+                "description": "Creates new account using email, password and company name",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Create new account using basic account information",
+                "operationId": "handle_signup",
+                "parameters": [
+                    {
+                        "description": "Signup Request Payload",
+                        "name": "EventMessage",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.SignupRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success Result",
+                        "schema": {
+                            "$ref": "#/definitions/rest.StandardResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Validation error",
+                        "schema": {
+                            "$ref": "#/definitions/rest.StandardResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Email is already in-use",
+                        "schema": {
+                            "$ref": "#/definitions/rest.StandardResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/rest.StandardResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "handlers.ApplicationRequest": {
+            "type": "object",
+            "required": [
+                "fcm_admin_json",
+                "fmc_sender_id",
+                "name",
+                "url"
+            ],
+            "properties": {
+                "fcm_admin_json": {
+                    "type": "string",
+                    "example": "{....}"
+                },
+                "fmc_sender_id": {
+                    "type": "string",
+                    "example": "123456789"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "My Fancy Application"
+                },
+                "url": {
+                    "type": "string",
+                    "example": "https://myfancywebsite.com"
+                }
+            }
+        },
+        "handlers.ApplicationResponse": {
+            "type": "object",
+            "properties": {
+                "auth_key": {
+                    "type": "string",
+                    "example": "E4YfpiZLajkjtOO8BbOlNK5Skbs2Ez63EdrFBE7xdiruInuB7geHYlHpkr5rPHSy"
+                },
+                "fcm_admin_json": {
+                    "type": "string",
+                    "example": "{....}"
+                },
+                "fmc_sender_id": {
+                    "type": "string",
+                    "example": "123456789"
+                },
+                "id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "name": {
+                    "type": "string",
+                    "example": "My Fancy Application"
+                },
+                "url": {
+                    "type": "string",
+                    "example": "https://myfancywebsite.com"
+                },
+                "uuid": {
+                    "type": "string",
+                    "example": "2550a565-98b4-47ce-9529-ab5c0da51556"
+                }
+            }
+        },
+        "handlers.AuthKeyResponse": {
+            "type": "object",
+            "properties": {
+                "auth_key": {
+                    "type": "string",
+                    "example": "E4YfpiZLajkjtOO8BbOlNK5Skbs2Ez63EdrFBE7xdiruInuB7geHYlHpkr5rPHSy"
+                }
+            }
+        },
+        "handlers.HealthCheckResponse": {
+            "type": "object",
+            "properties": {
+                "binary_uptime": {
+                    "type": "string"
+                },
+                "build_time": {
+                    "type": "string"
+                },
+                "container": {
+                    "type": "string"
+                },
+                "git_commit": {
+                    "type": "string"
+                },
+                "go_version": {
+                    "type": "string"
+                },
+                "kernel_uptime": {
+                    "type": "string"
+                },
+                "load_average_fifteen": {
+                    "type": "number"
+                },
+                "load_average_five": {
+                    "type": "number"
+                },
+                "load_average_one": {
+                    "type": "number"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "handlers.LoginRequest": {
+            "type": "object",
+            "required": [
+                "email",
+                "password"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "ali.kaviani@gmail.com"
+                },
+                "password": {
+                    "type": "string",
+                    "example": "testpassword"
+                }
+            }
+        },
+        "handlers.OauthRedirectResponse": {
+            "type": "object",
+            "properties": {
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
+        "handlers.SignupRequest": {
+            "type": "object",
+            "required": [
+                "company",
+                "email",
+                "password"
+            ],
+            "properties": {
+                "company": {
+                    "type": "string",
+                    "example": "ACME"
+                },
+                "email": {
+                    "type": "string",
+                    "example": "ali.kaviani@gmail.com"
+                },
+                "password": {
+                    "type": "string",
+                    "example": "testpassword"
+                }
+            }
+        },
+        "rest.StandardResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "object"
+                },
+                "errors": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "message": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "integer",
+                    "example": 0
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "BearerToken": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
+    }
+}

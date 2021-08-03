@@ -1,0 +1,266 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "Ratatoskr SDK Public REST APIs(Bifrost)",
+        "title": "Ratatoskr(Bifrost)",
+        "termsOfService": "http://swagger.io/terms/",
+        "contact": {
+            "name": "API Support",
+            "email": "ali.kaviani@gmail.com"
+        },
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        },
+        "version": "1.0"
+    },
+    "host": "localhost:6060",
+    "basePath": "/",
+    "paths": {
+        "/": {
+            "get": {
+                "description": "Pod/Container health check",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "General"
+                ],
+                "summary": "Pod/Container health check",
+                "operationId": "handle_health_check",
+                "responses": {
+                    "200": {
+                        "description": "Success Result",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/rest.StandardResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/handlers.HealthCheckResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/rest.StandardResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/rest.StandardResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/devices": {
+            "post": {
+                "description": "Register a new device to one of your Ratatosk apps",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Devices"
+                ],
+                "summary": "Register a new device to one of your Ratatosk apps",
+                "operationId": "handle_add_device",
+                "parameters": [
+                    {
+                        "description": "Create Device Request",
+                        "name": "Device",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.DeviceRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success Result",
+                        "schema": {
+                            "$ref": "#/definitions/rest.StandardResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Validation error",
+                        "schema": {
+                            "$ref": "#/definitions/rest.StandardResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/rest.StandardResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "handlers.DeviceRequest": {
+            "type": "object",
+            "required": [
+                "app_id",
+                "device_type",
+                "identifier"
+            ],
+            "properties": {
+                "adid": {
+                    "type": "string",
+                    "example": "dbdf14cc-a5e7-445f-a972-2112ab335b14"
+                },
+                "app_id": {
+                    "type": "string",
+                    "example": "407f8f90-d83b-4ad5-912c-556a27c8f249"
+                },
+                "app_version": {
+                    "type": "string",
+                    "example": "2.1.1"
+                },
+                "country": {
+                    "type": "string",
+                    "example": "IR"
+                },
+                "device_model": {
+                    "type": "string",
+                    "example": "SM-989F"
+                },
+                "device_os": {
+                    "type": "string",
+                    "example": "Android"
+                },
+                "device_os_version": {
+                    "type": "string",
+                    "example": "8.0"
+                },
+                "device_type": {
+                    "type": "string",
+                    "example": "android | ios | web"
+                },
+                "device_vendor": {
+                    "type": "string",
+                    "example": "Samsung"
+                },
+                "external_user_id": {
+                    "type": "string",
+                    "example": "u-12"
+                },
+                "external_user_id_hash": {
+                    "type": "string",
+                    "example": "xxxxxxxx"
+                },
+                "identifier": {
+                    "type": "string",
+                    "example": "APA91bHbYHk7aq-Uam_2pyJ2qbZvqllyyh2wjfPRaw5gLEX2SUlQBRvOc6sck1sa7H7nGeLNlDco8lXj83HWWwzV..."
+                },
+                "language": {
+                    "type": "string",
+                    "example": "fa"
+                },
+                "lat": {
+                    "type": "number",
+                    "example": 54.123456
+                },
+                "long": {
+                    "type": "number",
+                    "example": 35.123456
+                },
+                "notification_types": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "sdk": {
+                    "type": "string",
+                    "example": "1.0"
+                },
+                "session_count": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "tags": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "timezone": {
+                    "type": "integer",
+                    "example": 12600
+                }
+            }
+        },
+        "handlers.HealthCheckResponse": {
+            "type": "object",
+            "properties": {
+                "binary_uptime": {
+                    "type": "string"
+                },
+                "build_time": {
+                    "type": "string"
+                },
+                "container": {
+                    "type": "string"
+                },
+                "git_commit": {
+                    "type": "string"
+                },
+                "go_version": {
+                    "type": "string"
+                },
+                "kernel_uptime": {
+                    "type": "string"
+                },
+                "load_average_fifteen": {
+                    "type": "number"
+                },
+                "load_average_five": {
+                    "type": "number"
+                },
+                "load_average_one": {
+                    "type": "number"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "rest.StandardResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "object"
+                },
+                "errors": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "message": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "integer",
+                    "example": 0
+                }
+            }
+        }
+    }
+}

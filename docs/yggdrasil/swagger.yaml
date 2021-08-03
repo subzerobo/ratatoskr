@@ -1,0 +1,444 @@
+basePath: /
+definitions:
+  handlers.ApplicationRequest:
+    properties:
+      fcm_admin_json:
+        example: '{....}'
+        type: string
+      fmc_sender_id:
+        example: "123456789"
+        type: string
+      name:
+        example: My Fancy Application
+        type: string
+      url:
+        example: https://myfancywebsite.com
+        type: string
+    required:
+    - fcm_admin_json
+    - fmc_sender_id
+    - name
+    - url
+    type: object
+  handlers.ApplicationResponse:
+    properties:
+      auth_key:
+        example: E4YfpiZLajkjtOO8BbOlNK5Skbs2Ez63EdrFBE7xdiruInuB7geHYlHpkr5rPHSy
+        type: string
+      fcm_admin_json:
+        example: '{....}'
+        type: string
+      fmc_sender_id:
+        example: "123456789"
+        type: string
+      id:
+        example: 1
+        type: integer
+      name:
+        example: My Fancy Application
+        type: string
+      url:
+        example: https://myfancywebsite.com
+        type: string
+      uuid:
+        example: 2550a565-98b4-47ce-9529-ab5c0da51556
+        type: string
+    type: object
+  handlers.AuthKeyResponse:
+    properties:
+      auth_key:
+        example: E4YfpiZLajkjtOO8BbOlNK5Skbs2Ez63EdrFBE7xdiruInuB7geHYlHpkr5rPHSy
+        type: string
+    type: object
+  handlers.HealthCheckResponse:
+    properties:
+      binary_uptime:
+        type: string
+      build_time:
+        type: string
+      container:
+        type: string
+      git_commit:
+        type: string
+      go_version:
+        type: string
+      kernel_uptime:
+        type: string
+      load_average_fifteen:
+        type: number
+      load_average_five:
+        type: number
+      load_average_one:
+        type: number
+      status:
+        type: string
+    type: object
+  handlers.LoginRequest:
+    properties:
+      email:
+        example: ali.kaviani@gmail.com
+        type: string
+      password:
+        example: testpassword
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  handlers.OauthRedirectResponse:
+    properties:
+      url:
+        type: string
+    type: object
+  handlers.SignupRequest:
+    properties:
+      company:
+        example: ACME
+        type: string
+      email:
+        example: ali.kaviani@gmail.com
+        type: string
+      password:
+        example: testpassword
+        type: string
+    required:
+    - company
+    - email
+    - password
+    type: object
+  rest.StandardResponse:
+    properties:
+      data:
+        type: object
+      errors:
+        items:
+          type: string
+        type: array
+      message:
+        type: string
+      status:
+        example: 0
+        type: integer
+    type: object
+host: localhost:5050
+info:
+  contact:
+    email: ali.kaviani@gmail.com
+    name: API Support
+  description: Ratatoskr WebPanel(Yggdrasil) Rest API
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Ratatoskr(Yggdrasil)
+  version: "1.0"
+paths:
+  /:
+    get:
+      consumes:
+      - application/json
+      description: Pod/Container health check
+      operationId: handle_health_check
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success Result
+          schema:
+            allOf:
+            - $ref: '#/definitions/rest.StandardResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/handlers.HealthCheckResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/rest.StandardResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.StandardResponse'
+      summary: Pod/Container health check
+      tags:
+      - General
+  /v1/applications:
+    get:
+      consumes:
+      - application/json
+      description: Lists all of account registered applications
+      operationId: handle_list_my_applications
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success Result
+          schema:
+            allOf:
+            - $ref: '#/definitions/rest.StandardResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/handlers.ApplicationResponse'
+                  type: array
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.StandardResponse'
+      security:
+      - BearerToken: []
+      summary: Lists all of account registered applications
+      tags:
+      - Applications
+    post:
+      consumes:
+      - application/json
+      description: Create new application for logged-in account
+      operationId: handle_create_application
+      parameters:
+      - description: Create Application Request
+        in: body
+        name: Application
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.ApplicationRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success Result
+          schema:
+            allOf:
+            - $ref: '#/definitions/rest.StandardResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/handlers.ApplicationResponse'
+              type: object
+        "400":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/rest.StandardResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.StandardResponse'
+      security:
+      - BearerToken: []
+      summary: Create new application for logged-in account
+      tags:
+      - Applications
+  /v1/applications/{uuid}:
+    get:
+      description: Gets the general info about specific application uuid
+      operationId: handle_get_application_detail
+      parameters:
+      - description: UUID of user-owned application
+        in: path
+        name: uuid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success Result
+          schema:
+            allOf:
+            - $ref: '#/definitions/rest.StandardResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/handlers.ApplicationResponse'
+              type: object
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/rest.StandardResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.StandardResponse'
+      security:
+      - BearerToken: []
+      summary: Gets the general info about specific application uuid
+      tags:
+      - Applications
+    patch:
+      description: Updates the Auth token with new one
+      operationId: handle_reset_auth_token
+      parameters:
+      - description: UUID of user-owned application
+        in: path
+        name: uuid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success Result
+          schema:
+            allOf:
+            - $ref: '#/definitions/rest.StandardResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/handlers.AuthKeyResponse'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.StandardResponse'
+      security:
+      - BearerToken: []
+      summary: Updates the Auth token with new one
+      tags:
+      - Applications
+  /v1/applications/{uuid}/{status}:
+    put:
+      consumes:
+      - application/json
+      description: Updates Identity verification
+      operationId: handle_update_identity_verification
+      parameters:
+      - description: UUID of user-owned application
+        in: path
+        name: status
+        required: true
+        type: string
+      - description: Status of Identity verification
+        in: path
+        name: uuid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success Result
+          schema:
+            $ref: '#/definitions/rest.StandardResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.StandardResponse'
+      security:
+      - BearerToken: []
+      summary: Updates Identity verification
+      tags:
+      - Applications
+  /v1/auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Login user using email and password combination
+      operationId: handle_login
+      parameters:
+      - description: Login Request Payload
+        in: body
+        name: EventMessage
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: success Result
+          schema:
+            $ref: '#/definitions/rest.StandardResponse'
+        "400":
+          description: validation error
+          schema:
+            $ref: '#/definitions/rest.StandardResponse'
+        "401":
+          description: invalid credentials
+          schema:
+            $ref: '#/definitions/rest.StandardResponse'
+        "403":
+          description: account is not active or email is not confirmed
+          schema:
+            $ref: '#/definitions/rest.StandardResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.StandardResponse'
+      summary: Login user using email and password combination
+      tags:
+      - Authentication
+  /v1/auth/oauth/{provider}:
+    get:
+      description: This endpoint generate an URL for the specified provider name on
+        the url
+      operationId: handle_oauth_step1
+      parameters:
+      - description: OAuth provider name (google,..)
+        in: path
+        name: provider
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success Result
+          schema:
+            allOf:
+            - $ref: '#/definitions/rest.StandardResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/handlers.OauthRedirectResponse'
+              type: object
+        "500":
+          description: Validation error(s)
+          schema:
+            allOf:
+            - $ref: '#/definitions/rest.StandardResponse'
+            - properties:
+                data:
+                  items:
+                    type: string
+                  type: array
+              type: object
+      tags:
+      - Authentication
+  /v1/auth/signup:
+    post:
+      consumes:
+      - application/json
+      description: Creates new account using email, password and company name
+      operationId: handle_signup
+      parameters:
+      - description: Signup Request Payload
+        in: body
+        name: EventMessage
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.SignupRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success Result
+          schema:
+            $ref: '#/definitions/rest.StandardResponse'
+        "400":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/rest.StandardResponse'
+        "409":
+          description: Email is already in-use
+          schema:
+            $ref: '#/definitions/rest.StandardResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.StandardResponse'
+      summary: Create new account using basic account information
+      tags:
+      - Authentication
+securityDefinitions:
+  BearerToken:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
