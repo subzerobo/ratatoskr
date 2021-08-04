@@ -36,6 +36,8 @@ type device struct {
 	ApplicationID     uint      `gorm:"index"`
 	Application       application
 	Tags              []tag `gorm:"foreignKey:DeviceID"`
+	BadgeCount        int
+	AmountSpent       float32
 }
 
 type tag struct {
@@ -48,27 +50,29 @@ type tag struct {
 func (d device) ToServiceModel() *devices.DeviceModel {
 	dm := devices.DeviceModel{
 		ID:                d.ID,
-		UUID:              d.UUID,
-		DeviceType:        d.DeviceType,
-		Identifier:        d.Identifier,
-		Language:          d.Language,
+		UUID:              &d.UUID,
+		DeviceType:        &d.DeviceType,
+		Identifier:        &d.Identifier,
+		Language:          &d.Language,
 		Timezone:          d.Timezone,
-		AppVersion:        d.AppVersion,
-		DeviceVendor:      d.DeviceVendor,
-		DeviceModel:       d.DeviceModel,
-		DeviceOS:          d.DeviceOS,
-		DeviceOSVersion:   d.DeviceOSVersion,
-		ADID:              d.ADID,
-		SDK:               d.SDK,
-		SessionCount:      d.SessionCount,
-		NotificationTypes: d.NotificationTypes,
-		Long:              d.Long,
-		Lat:               d.Lat,
-		Country:           d.Country,
-		ExternalUserID:    d.ExternalUserID,
+		AppVersion:        &d.AppVersion,
+		DeviceVendor:      &d.DeviceVendor,
+		DeviceModel:       &d.DeviceModel,
+		DeviceOS:          &d.DeviceOS,
+		DeviceOSVersion:   &d.DeviceOSVersion,
+		ADID:              &d.ADID,
+		SDK:               &d.SDK,
+		SessionCount:      &d.SessionCount,
+		NotificationTypes: &d.NotificationTypes,
+		Long:              &d.Long,
+		Lat:               &d.Lat,
+		Country:           &d.Country,
+		ExternalUserID:    &d.ExternalUserID,
 		CreatedAt:         d.CreatedAt,
 		UpdatedAt:         d.UpdatedAt,
-		ApplicationID:     d.ApplicationID,
+		ApplicationID:     &d.ApplicationID,
+		BadgeCount:        &d.BadgeCount,
+		AmountSpent:       &d.AmountSpent,
 	}
 	dm.Tags = make(map[string]string)
 	for _, t := range d.Tags {
@@ -79,26 +83,26 @@ func (d device) ToServiceModel() *devices.DeviceModel {
 
 func (r *repository) UpsertDevice(model devices.DeviceModel) (*devices.DeviceModel, error) {
 	dev := device{
-		DeviceType:        model.DeviceType,
-		Identifier:        model.Identifier,
-		Language:          model.Language,
+		DeviceType:        *model.DeviceType,
+		Identifier:        *model.Identifier,
+		Language:          *model.Language,
 		Timezone:          model.Timezone,
-		AppVersion:        model.AppVersion,
-		DeviceVendor:      model.DeviceVendor,
-		DeviceModel:       model.DeviceModel,
-		DeviceOS:          model.DeviceOS,
-		DeviceOSVersion:   model.DeviceOSVersion,
-		ADID:              model.ADID,
-		SDK:               model.SDK,
-		SessionCount:      model.SessionCount,
-		NotificationTypes: model.NotificationTypes,
-		Long:              model.Long,
-		Lat:               model.Lat,
-		Country:           model.Country,
-		ExternalUserID:    model.ExternalUserID,
-		ApplicationID:     model.ApplicationID,
+		AppVersion:        *model.AppVersion,
+		DeviceVendor:      *model.DeviceVendor,
+		DeviceModel:       *model.DeviceModel,
+		DeviceOS:          *model.DeviceOS,
+		DeviceOSVersion:   *model.DeviceOSVersion,
+		ADID:              *model.ADID,
+		SDK:               *model.SDK,
+		SessionCount:      *model.SessionCount,
+		NotificationTypes: *model.NotificationTypes,
+		Long:              *model.Long,
+		Lat:               *model.Lat,
+		Country:           *model.Country,
+		ExternalUserID:    *model.ExternalUserID,
+		ApplicationID:     *model.ApplicationID,
 	}
-	
+
 	err := r.db.Transaction(func(tx *gorm.DB) error {
 		err := tx.Clauses(clause.OnConflict{
 			Columns: []clause.Column{{Name: "identifier"}, {Name: "ad_id"}},
@@ -122,7 +126,7 @@ func (r *repository) UpsertDevice(model devices.DeviceModel) (*devices.DeviceMod
 		if err != nil {
 			return errors.Wrapf(err, "failed to insert device record %v", dev)
 		}
-		
+
 		for k, v := range model.Tags {
 			tagM := tag{
 				DeviceID: dev.ID,
@@ -132,7 +136,7 @@ func (r *repository) UpsertDevice(model devices.DeviceModel) (*devices.DeviceMod
 			if v == "" {
 				// Remove tag if value is empty
 				err = tx.Where("device_id = ? AND key = ?", tagM.DeviceID, tagM.Key).Delete(tag{}).Error
-			}else{
+			} else {
 				// Upsert tag if value is not empty
 				err = tx.Clauses(clause.OnConflict{
 					Columns: []clause.Column{{Name: "device_id"}, {Name: "key"}},
@@ -147,11 +151,11 @@ func (r *repository) UpsertDevice(model devices.DeviceModel) (*devices.DeviceMod
 		}
 		return nil
 	})
-	
+
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to commit changes")
 	}
-	
+
 	return dev.ToServiceModel(), nil
 }
 
@@ -161,6 +165,159 @@ func (r *repository) GetDevice(uuid string, applicationID uint) (*devices.Device
 	if err != nil {
 		return nil, getProcessedDBError(err)
 	}
-	
+
 	return item.ToServiceModel(), nil
+}
+
+func (r *repository) GetDevices(applicationID uint, lastID uint, limit int) ([]*devices.DeviceModel, error) {
+	var items []device
+	err := r.db.Where("application_id = ? AND id > ? ", applicationID, lastID).Limit(limit).Find(&items).Error
+	if err != nil {
+		return nil, getProcessedDBError(err)
+	}
+	var result []*devices.DeviceModel
+	for _, item := range items {
+		result = append(result, item.ToServiceModel())
+	}
+	return result, nil
+}
+
+func (r *repository) UpdatePartial(model devices.DeviceModel) (*devices.DeviceModel, error) {
+	dev := device{}
+
+	err := r.db.Transaction(func(tx *gorm.DB) error {
+		err := tx.Where("uuid = ?", model.UUID).First(&dev).Error
+		if err != nil {
+			return getProcessedDBError(err)
+		}
+
+		dev.Timezone = model.Timezone
+		if model.DeviceModel != nil {
+			dev.DeviceModel = *model.DeviceModel
+		}
+		if model.Identifier != nil {
+			dev.Identifier = *model.Identifier
+		}
+		if model.Language != nil {
+			dev.Language = *model.Language
+		}
+		if model.AppVersion != nil {
+			dev.AppVersion = *model.AppVersion
+		}
+		if model.DeviceVendor != nil {
+			dev.DeviceVendor = *model.DeviceVendor
+		}
+		if model.DeviceModel != nil {
+			dev.DeviceModel = *model.DeviceModel
+		}
+		if model.DeviceOS != nil {
+			dev.DeviceOS = *model.DeviceOS
+		}
+		if model.DeviceOSVersion != nil {
+			dev.DeviceOSVersion = *model.DeviceOSVersion
+		}
+		if model.ADID != nil {
+			dev.ADID = *model.ADID
+		}
+		if model.SDK != nil {
+			dev.SDK = *model.SDK
+		}
+		if model.SessionCount != nil {
+			dev.SessionCount = *model.SessionCount
+		}
+		if model.NotificationTypes != nil {
+			dev.NotificationTypes = *model.NotificationTypes
+		}
+		if model.SessionCount != nil {
+			dev.SessionCount = *model.SessionCount
+		}
+		if model.Long != nil {
+			dev.Long = *model.Long
+		}
+		if model.Lat != nil {
+			dev.Lat = *model.Lat
+		}
+		if model.Country != nil {
+			dev.Country = *model.Country
+		}
+		if model.ExternalUserID != nil {
+			dev.ExternalUserID = *model.ExternalUserID
+		}
+		if model.BadgeCount != nil {
+			dev.BadgeCount = *model.BadgeCount
+		}
+		if model.AmountSpent != nil {
+			dev.AmountSpent = *model.AmountSpent
+		}
+
+		for k, v := range model.Tags {
+			tagM := tag{
+				DeviceID: dev.ID,
+				Key:      k,
+				Value:    v,
+			}
+			if v == "" {
+				// Remove tag if value is empty
+				err = tx.Where("device_id = ? AND key = ?", tagM.DeviceID, tagM.Key).Delete(tag{}).Error
+			} else {
+				// Upsert tag if value is not empty
+				err = tx.Clauses(clause.OnConflict{
+					Columns: []clause.Column{{Name: "device_id"}, {Name: "key"}},
+					DoUpdates: clause.Assignments(map[string]interface{}{
+						"value": tagM.Value,
+					}),
+				}).Create(&tagM).Error
+			}
+			if err != nil {
+				return errors.Wrapf(err, "failed to insert tag record %v", tagM)
+			}
+		}
+
+		err = tx.Save(dev).Error
+		return err
+	})
+
+	if err != nil {
+		return nil, err
+	}
+	return dev.ToServiceModel(), nil
+}
+
+func (r *repository) UpdateDeviceTagsByUser(applicationID uint, externalUserID string, Tags map[string]string) error {
+	var items []device
+	err := r.db.Where("application_id = ? AND external_user_id = ? ", applicationID, externalUserID).Find(&items).Error
+	if err != nil {
+		return getProcessedDBError(err)
+	}
+
+	err = r.db.Transaction(func(tx *gorm.DB) error {
+		for _, item := range items {
+			for k, v := range Tags {
+				tagM := tag{
+					DeviceID: item.ID,
+					Key:      k,
+					Value:    v,
+				}
+				if v == "" {
+					// Remove tag if value is empty
+					err = tx.Where("device_id = ? AND key = ?", tagM.DeviceID, tagM.Key).Delete(tag{}).Error
+				} else {
+					// Upsert tag if value is not empty
+					err = tx.Clauses(clause.OnConflict{
+						Columns: []clause.Column{{Name: "device_id"}, {Name: "key"}},
+						DoUpdates: clause.Assignments(map[string]interface{}{
+							"value": tagM.Value,
+						}),
+					}).Create(&tagM).Error
+				}
+				if err != nil {
+					return errors.Wrapf(err, "failed to insert tag record %v", tagM)
+				}
+			}
+		}
+		return nil
+	})
+	return err
+
+	return nil
 }
