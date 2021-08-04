@@ -58,3 +58,25 @@ func getPagination(c *gin.Context) (utils.Paging, error) {
 		Size: limitNum,
 	}, nil
 }
+
+func getMorePagination(c *gin.Context) (utils.MorePaging, error) {
+	lastId := 0
+	limitNum := 50
+	var err error
+	if lastIDStr := c.Query("last_device_id"); lastIDStr != "" {
+		lastId, err = strconv.Atoi(lastIDStr)
+		if err != nil {
+			return utils.MorePaging{}, err
+		}
+	}
+	if limitStr := c.Query("limit"); limitStr != "" {
+		limitNum, err = strconv.Atoi(limitStr)
+		if err != nil {
+			return utils.MorePaging{}, err
+		}
+	}
+	return utils.MorePaging{
+		LastID: uint(lastId),
+		Size: limitNum,
+	}, nil
+}
