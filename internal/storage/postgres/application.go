@@ -1,8 +1,8 @@
 package postgres
 
 import (
-	applications2 "github.com/subzerobo/ratatoskr/internal/services/applications"
-	devices2 "github.com/subzerobo/ratatoskr/internal/services/devices"
+	 "github.com/subzerobo/ratatoskr/internal/services/applications"
+	 "github.com/subzerobo/ratatoskr/internal/services/devices"
 	"github.com/subzerobo/ratatoskr/pkg/errors"
 	"time"
 )
@@ -22,8 +22,8 @@ type application struct {
 	Account              account
 }
 
-func (a application) ToServiceModel() *applications2.ApplicationModel {
-	return &applications2.ApplicationModel{
+func (a application) ToServiceModel() *applications.ApplicationModel {
+	return &applications.ApplicationModel{
 		ID:                   a.ID,
 		UUID:                 a.UUID,
 		Name:                 a.Name,
@@ -38,7 +38,7 @@ func (a application) ToServiceModel() *applications2.ApplicationModel {
 	}
 }
 
-func (r *repository) CreateApplication(model applications2.ApplicationModel) (*applications2.ApplicationModel, error) {
+func (r *repository) CreateApplication(model applications.ApplicationModel) (*applications.ApplicationModel, error) {
 	app := application{
 		Name:         model.Name,
 		FCMSenderID:  model.FCMSenderID,
@@ -54,33 +54,33 @@ func (r *repository) CreateApplication(model applications2.ApplicationModel) (*a
 	return app.ToServiceModel(), nil
 }
 
-func (r *repository) GetApplicationsByAccountID(accountID uint) ([]*applications2.ApplicationModel, error) {
+func (r *repository) GetApplicationsByAccountID(accountID uint) ([]*applications.ApplicationModel, error) {
 	var items []application
 	err := r.db.Where("account_id = ?", accountID).Find(&items).Error
 	if err != nil {
 		return nil, getProcessedDBError(err)
 	}
-	var result []*applications2.ApplicationModel
+	var result []*applications.ApplicationModel
 	for _, item := range items {
 		result = append(result, item.ToServiceModel())
 	}
 	return result, nil
 }
 
-func (r *repository) GetAllApplications() ([]*applications2.ApplicationModel, error) {
+func (r *repository) GetAllApplications() ([]*applications.ApplicationModel, error) {
 	var items []application
 	err := r.db.Find(&items).Error
 	if err != nil {
 		return nil, getProcessedDBError(err)
 	}
-	var result []*applications2.ApplicationModel
+	var result []*applications.ApplicationModel
 	for _, item := range items {
 		result = append(result, item.ToServiceModel())
 	}
 	return result, nil
 }
 
-func (r *repository) GetAccountApplicationByUUID(accountID uint, UUID string) (*applications2.ApplicationModel, error) {
+func (r *repository) GetAccountApplicationByUUID(accountID uint, UUID string) (*applications.ApplicationModel, error) {
 	var item application
 	err := r.db.Where("uuid = ? AND account_id = ?", UUID, accountID).First(&item).Error
 	if err != nil {
@@ -102,18 +102,28 @@ func (r *repository) UpdateIdentityVerification(accountID uint, UUID string, sta
 		Update("identity_verification", status).Error
 }
 
-func (r *repository) GetApplicationByUUID(UUID string) (*devices2.DeviceApplicationModel, error) {
+func (r *repository) GetApplicationByUUID(UUID string) (*devices.DeviceApplicationModel, error) {
 	var item application
 	err := r.db.Where("uuid = ?", UUID).First(&item).Error
 	if err != nil {
 		return nil, getProcessedDBError(err)
 	}
 	
-	return &devices2.DeviceApplicationModel{
+	return &devices.DeviceApplicationModel{
 		ID:                   item.ID,
 		UUID:                 item.UUID,
 		AuthKey:              item.AuthKey,
 		IdentityVerification: item.IdentityVerification,
 		AccountID:            item.AccountID,
 	}, nil
+}
+
+func (r *repository) GetApplicationModelByUUID(UUID string) (*applications.ApplicationModel, error){
+	var item application
+	err := r.db.Where("uuid = ?", UUID).First(&item).Error
+	if err != nil {
+		return nil, getProcessedDBError(err)
+	}
+
+	return item.ToServiceModel(), nil
 }
