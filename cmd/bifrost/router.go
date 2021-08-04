@@ -60,7 +60,14 @@ func SetupRouter(handler *handlers.BifrostHandler, config PrometheusConfig, jwtC
 		publicV1 := v1.Group("")
 		{
 			publicV1.POST("/devices", handler.HandleAddDevice)
+			publicV1.GET("/devices/:uuid/:app_uuid", handler.HandleViewDevice)
+			publicV1.GET("/devices", handler.HandleViewDevices)
+			publicV1.PUT("/devices/:uuid", handler.HandleEditDevice)
+
+			// Edit User Tags
+			publicV1.PUT("/applications/:app_uuid/users/:external_user_id", handler.HandleEditUserTags)
 		}
+
 	}
 	
 	var AllowedRoutes map[string]bool = make(map[string]bool, 0)
@@ -71,7 +78,7 @@ func SetupRouter(handler *handlers.BifrostHandler, config PrometheusConfig, jwtC
 	
 	// Remove parameters to avoid increasing of metrics cardinality
 	paramStripMap := make(map[string]bool, 0)
-	for _, sp := range []string{"uuid", "id"} {
+	for _, sp := range []string{"uuid", "id", "app_uuid"} {
 		paramStripMap[sp] = true
 	}
 	
