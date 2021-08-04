@@ -5,6 +5,10 @@ import (
 	"github.com/subzerobo/ratatoskr/pkg/utils"
 )
 
+var (
+	ErrInvalidApplicationAuthKey = errors.New("application uuid/auth token is invalid")
+)
+
 type Service interface {
 	Create(model ApplicationModel) (*ApplicationModel, error)
 	List(accountID uint) ([]*ApplicationModel, error)
@@ -13,6 +17,7 @@ type Service interface {
 	UpdateIdentityVerification(accountID uint, UUID string, status bool) error
 	Details(accountID uint, UUID string) (*ApplicationModel, error)
 	Delete(accountID uint, UUID string) error
+	CheckApplicationToken(authKey string, UUID string) error
 }
 
 type service struct {
@@ -31,9 +36,9 @@ func (s service) Create(model ApplicationModel) (*ApplicationModel, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	return res, nil
-	
+
 }
 
 func (s service) List(accountID uint) ([]*ApplicationModel, error) {
@@ -59,23 +64,34 @@ func (s service) ListAll() ([]*ApplicationModel, error) {
 }
 
 func (s service) Details(accountID uint, UUID string) (*ApplicationModel, error) {
-	res, err := s.repository.GetAccountApplicationByUUID(accountID,UUID)
+	res, err := s.repository.GetAccountApplicationByUUID(accountID, UUID)
 	return res, err
 }
 
 func (s service) UpdateAuthKey(accountID uint, UUID string) (string, error) {
 	newToken := utils.RandomString(64)
-	err := s.repository.UpdateAuthKey(accountID,UUID, newToken)
+	err := s.repository.UpdateAuthKey(accountID, UUID, newToken)
 	if err != nil {
 		return "", err
 	}
-	return newToken,nil
+	return newToken, nil
 }
 
 func (s service) UpdateIdentityVerification(accountID uint, UUID string, status bool) error {
-	return s.repository.UpdateIdentityVerification(accountID,UUID, status)
+	return s.repository.UpdateIdentityVerification(accountID, UUID, status)
 }
 
 func (s service) Delete(accountID uint, UUID string) error {
 	panic("implement me")
+}
+
+func (s service) CheckApplicationToken(authKey string, UUID string) error {
+	res, err := s.repository.GetApplicationModelByUUID(UUID)
+	if err != nil {
+		return err
+	}
+	if res.AuthKey != authKey {
+		return errors.WithKindCtx(ErrInvalidApplicationAuthKey, "", errors.Unauthorized, nil)
+	}
+	return nil
 }
