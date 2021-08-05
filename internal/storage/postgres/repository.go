@@ -14,6 +14,8 @@ var models = []interface{}{
 	&application{},
 	&device{},
 	&tag{},
+	&androidGroup{},
+	&androidGroupCategory{},
 }
 
 func CreateRepository(db *gorm.DB) (*repository, error) {

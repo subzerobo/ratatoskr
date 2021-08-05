@@ -18,6 +18,15 @@ type Service interface {
 	Details(accountID uint, UUID string) (*ApplicationModel, error)
 	Delete(accountID uint, UUID string) error
 	CheckApplicationToken(authKey string, UUID string) error
+
+	GetAndroidGroups(UUID string) ([]*AndroidGroupModel, error)
+	CreateAndroidGroup(accountID uint, aUUID string, Name string) error
+	UpdateAndroidGroup(accountID uint, aUUID string, gUUID string, Name string) error
+	DeleteAndroidGroup(accountID uint, aUUID string, gUUID string) error
+
+	CreateAndroidCategory(accountID uint, aUUID string, gUUID string, model AndroidGroupCategoryModel) error
+	UpdateAndroidCategory(accountID uint, aUUID string, gUUID string, model AndroidGroupCategoryModel) error
+	DeleteAndroidCategory(accountID uint, aUUID string, gUUID string, cUUID string) error
 }
 
 type service struct {
@@ -94,4 +103,83 @@ func (s service) CheckApplicationToken(authKey string, UUID string) error {
 		return errors.WithKindCtx(ErrInvalidApplicationAuthKey, "", errors.Unauthorized, nil)
 	}
 	return nil
+}
+
+func (s service) GetAndroidGroups(UUID string) ([]*AndroidGroupModel, error) {
+	res, err := s.repository.GetApplicationModelByUUID(UUID)
+	if err != nil {
+		return nil, err
+	}
+	groups, err := s.repository.GetAndroidGroups(res.ID)
+	return groups, err
+
+}
+
+func (s service) CreateAndroidGroup(accountID uint, aUUID string, Name string) error {
+	// Get Application By AccountID and UUID
+	res, err := s.repository.GetAccountApplicationByUUID(accountID, aUUID)
+	if err != nil {
+		return err
+	}
+
+	_, err = s.repository.CreateAndroidGroup(AndroidGroupModel{
+		ApplicationID: res.ID,
+		GroupName:     Name,
+	})
+
+	return err
+}
+
+func (s service) UpdateAndroidGroup(accountID uint, aUUID string, gUUID string, Name string) error {
+	// Get Application By AccountID and UUID
+	res, err := s.repository.GetAccountApplicationByUUID(accountID, aUUID)
+	if err != nil {
+		return err
+	}
+
+	_, err = s.repository.UpdateAndroidGroup(AndroidGroupModel{
+		ApplicationID: res.ID,
+		GroupUUID:     gUUID,
+		GroupName:     Name,
+	})
+	return err
+}
+
+func (s service) DeleteAndroidGroup(accountID uint, aUUID string, gUUID string) error {
+	// Get Application By AccountID and UUID
+	res, err := s.repository.GetAccountApplicationByUUID(accountID, aUUID)
+	if err != nil {
+		return err
+	}
+	return s.repository.DeleteAndroidGroup(res.ID, gUUID)
+}
+
+func (s service) CreateAndroidCategory(accountID uint, aUUID string, gUUID string, model AndroidGroupCategoryModel) error {
+	res, err := s.repository.GetAccountApplicationByUUID(accountID, aUUID)
+	if err != nil {
+		return err
+	}
+
+	err = s.repository.CreateAndroidCategory(res.ID, gUUID,model)
+	return err
+}
+
+func (s service) UpdateAndroidCategory(accountID uint, aUUID string, gUUID string, model AndroidGroupCategoryModel) error {
+	res, err := s.repository.GetAccountApplicationByUUID(accountID, aUUID)
+	if err != nil {
+		return err
+	}
+
+	err = s.repository.UpdateAndroidCategory(res.ID, gUUID, model)
+	return err
+}
+
+func (s service) DeleteAndroidCategory(accountID uint, aUUID string, gUUID string, cUUID string) error {
+	res, err := s.repository.GetAccountApplicationByUUID(accountID, aUUID)
+	if err != nil {
+		return err
+	}
+
+	err = s.repository.DeleteAndroidCategory(res.ID, gUUID, cUUID)
+	return err
 }
