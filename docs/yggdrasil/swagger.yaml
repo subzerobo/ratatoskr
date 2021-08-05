@@ -1,5 +1,92 @@
 basePath: /
 definitions:
+  applications.AndroidGroupCategoryModel:
+    properties:
+      description:
+        type: string
+      enable_badge:
+        type: integer
+      id:
+        type: integer
+      led:
+        type: integer
+      led_color:
+        type: string
+      lock_screen:
+        type: integer
+      name:
+        type: string
+      priority:
+        type: string
+      sound:
+        type: integer
+      sound_name:
+        type: string
+      uuid:
+        type: string
+      vibration:
+        type: integer
+      vibration_pattern:
+        type: string
+    type: object
+  applications.AndroidGroupModel:
+    properties:
+      categories:
+        items:
+          $ref: '#/definitions/applications.AndroidGroupCategoryModel'
+        type: array
+      group_name:
+        type: string
+      group_uuid:
+        type: string
+      id:
+        type: integer
+    type: object
+  handlers.AndroidCategoryRequest:
+    properties:
+      description:
+        example: Test Description
+        type: string
+      enable_badge:
+        example: 0
+        type: integer
+      led:
+        example: 1
+        type: integer
+      led_color:
+        example: '#3300ccc'
+        type: string
+      lock_screen:
+        example: 1
+        type: integer
+      name:
+        example: Test Group
+        type: string
+      priority:
+        example: "3"
+        type: string
+      sound:
+        example: 1
+        type: integer
+      sound_name:
+        example: resource_name
+        type: string
+      vibration:
+        example: 1
+        type: integer
+      vibration_pattern:
+        example: xxxx
+        type: string
+    required:
+    - name
+    type: object
+  handlers.AndroidGroupRequest:
+    properties:
+      name:
+        type: string
+    required:
+    - name
+    type: object
   handlers.ApplicationRequest:
     properties:
       fcm_admin_json:
@@ -162,6 +249,256 @@ paths:
       summary: Pod/Container health check
       tags:
       - General
+  /v1/application/:app_uuid/android_groups:
+    get:
+      description: Gets a list of Android groups and child categories for the given
+        Ratatoskr App
+      operationId: handle_get_android_groups
+      parameters:
+      - description: UUID of user-owned application
+        in: path
+        name: app_uuid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success Result
+          schema:
+            allOf:
+            - $ref: '#/definitions/rest.StandardResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/applications.AndroidGroupModel'
+                  type: array
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.StandardResponse'
+      security:
+      - BearerToken: []
+      summary: Android groups and channels
+      tags:
+      - AndroidGroups
+    post:
+      consumes:
+      - application/json
+      description: Creates a new Android group for the given Ratatoskr App
+      operationId: handle_create_android_group
+      parameters:
+      - description: Create Android Group
+        in: body
+        name: Application
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.AndroidGroupRequest'
+      - description: UUID of user-owned application
+        in: path
+        name: app_uuid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success Result
+          schema:
+            $ref: '#/definitions/rest.StandardResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.StandardResponse'
+      security:
+      - BearerToken: []
+      summary: Creates android group
+      tags:
+      - AndroidGroups
+  /v1/application/:app_uuid/android_groups/:uuid:
+    delete:
+      description: Deletes an Android group for the given Ratatoskr App with it's
+        child channels
+      operationId: handle_delete_android_group
+      parameters:
+      - description: UUID of user-owned application
+        in: path
+        name: app_uuid
+        required: true
+        type: string
+      - description: UUID of android group
+        in: path
+        name: uuid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success Result
+          schema:
+            $ref: '#/definitions/rest.StandardResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.StandardResponse'
+      security:
+      - BearerToken: []
+      summary: Delete android group
+      tags:
+      - AndroidGroups
+    put:
+      consumes:
+      - application/json
+      description: Updates an Android group name for the given Ratatoskr App
+      operationId: handle_update_android_group
+      parameters:
+      - description: Update Android Group
+        in: body
+        name: Application
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.AndroidGroupRequest'
+      - description: UUID of user-owned application
+        in: path
+        name: app_uuid
+        required: true
+        type: string
+      - description: UUID of android group
+        in: path
+        name: uuid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success Result
+          schema:
+            $ref: '#/definitions/rest.StandardResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.StandardResponse'
+      security:
+      - BearerToken: []
+      summary: Update android group
+      tags:
+      - AndroidGroups
+  /v1/application/{app_uuid}/android_categories/{g_uuid}:
+    post:
+      consumes:
+      - application/json
+      description: Create an Android category for the given Ratatoskr App / Android
+        group
+      operationId: handle_create_android_category
+      parameters:
+      - description: Update Android Group
+        in: body
+        name: Application
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.AndroidCategoryRequest'
+      - description: UUID of user-owned application
+        in: path
+        name: app_uuid
+        required: true
+        type: string
+      - description: UUID of android group
+        in: path
+        name: g_uuid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success Result
+          schema:
+            $ref: '#/definitions/rest.StandardResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.StandardResponse'
+      security:
+      - BearerToken: []
+      summary: Create android category
+      tags:
+      - AndroidGroups
+  /v1/application/{app_uuid}/android_categories/{g_uuid}/{c_uuid}:
+    delete:
+      description: Deletes an Android category for the given Ratatoskr App / Android
+        group
+      operationId: handle_delete_android_category
+      parameters:
+      - description: UUID of user-owned application
+        in: path
+        name: app_uuid
+        required: true
+        type: string
+      - description: UUID of android group
+        in: path
+        name: g_uuid
+        required: true
+        type: string
+      - description: UUID of android category
+        in: path
+        name: c_uuid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success Result
+          schema:
+            $ref: '#/definitions/rest.StandardResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.StandardResponse'
+      security:
+      - BearerToken: []
+      summary: Delete android category
+      tags:
+      - AndroidGroups
+    put:
+      description: Updates an Android category for the given Ratatoskr App / Android
+        group
+      operationId: handle_update_android_category
+      parameters:
+      - description: UUID of user-owned application
+        in: path
+        name: app_uuid
+        required: true
+        type: string
+      - description: UUID of android group
+        in: path
+        name: g_uuid
+        required: true
+        type: string
+      - description: UUID of android category
+        in: path
+        name: c_uuid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success Result
+          schema:
+            $ref: '#/definitions/rest.StandardResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.StandardResponse'
+      security:
+      - BearerToken: []
+      summary: Updates android category
+      tags:
+      - AndroidGroups
   /v1/applications:
     get:
       consumes:
@@ -260,7 +597,7 @@ paths:
             $ref: '#/definitions/rest.StandardResponse'
       security:
       - BearerToken: []
-      summary: Gets the general info about specific application uuid
+      summary: Gets application details
       tags:
       - Applications
     patch:

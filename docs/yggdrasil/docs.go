@@ -80,6 +80,387 @@ var doc = `{
                 }
             }
         },
+        "/v1/application/:app_uuid/android_groups": {
+            "get": {
+                "security": [
+                    {
+                        "BearerToken": []
+                    }
+                ],
+                "description": "Gets a list of Android groups and child categories for the given Ratatoskr App",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AndroidGroups"
+                ],
+                "summary": "Android groups and channels",
+                "operationId": "handle_get_android_groups",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "UUID of user-owned application",
+                        "name": "app_uuid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success Result",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/rest.StandardResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/applications.AndroidGroupModel"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/rest.StandardResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerToken": []
+                    }
+                ],
+                "description": "Creates a new Android group for the given Ratatoskr App",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AndroidGroups"
+                ],
+                "summary": "Creates android group",
+                "operationId": "handle_create_android_group",
+                "parameters": [
+                    {
+                        "description": "Create Android Group",
+                        "name": "Application",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.AndroidGroupRequest"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "UUID of user-owned application",
+                        "name": "app_uuid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success Result",
+                        "schema": {
+                            "$ref": "#/definitions/rest.StandardResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/rest.StandardResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/application/:app_uuid/android_groups/:uuid": {
+            "put": {
+                "security": [
+                    {
+                        "BearerToken": []
+                    }
+                ],
+                "description": "Updates an Android group name for the given Ratatoskr App",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AndroidGroups"
+                ],
+                "summary": "Update android group",
+                "operationId": "handle_update_android_group",
+                "parameters": [
+                    {
+                        "description": "Update Android Group",
+                        "name": "Application",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.AndroidGroupRequest"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "UUID of user-owned application",
+                        "name": "app_uuid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "UUID of android group",
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success Result",
+                        "schema": {
+                            "$ref": "#/definitions/rest.StandardResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/rest.StandardResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerToken": []
+                    }
+                ],
+                "description": "Deletes an Android group for the given Ratatoskr App with it's child channels",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AndroidGroups"
+                ],
+                "summary": "Delete android group",
+                "operationId": "handle_delete_android_group",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "UUID of user-owned application",
+                        "name": "app_uuid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "UUID of android group",
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success Result",
+                        "schema": {
+                            "$ref": "#/definitions/rest.StandardResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/rest.StandardResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/application/{app_uuid}/android_categories/{g_uuid}": {
+            "post": {
+                "security": [
+                    {
+                        "BearerToken": []
+                    }
+                ],
+                "description": "Create an Android category for the given Ratatoskr App / Android group",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AndroidGroups"
+                ],
+                "summary": "Create android category",
+                "operationId": "handle_create_android_category",
+                "parameters": [
+                    {
+                        "description": "Update Android Group",
+                        "name": "Application",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.AndroidCategoryRequest"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "UUID of user-owned application",
+                        "name": "app_uuid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "UUID of android group",
+                        "name": "g_uuid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success Result",
+                        "schema": {
+                            "$ref": "#/definitions/rest.StandardResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/rest.StandardResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/application/{app_uuid}/android_categories/{g_uuid}/{c_uuid}": {
+            "put": {
+                "security": [
+                    {
+                        "BearerToken": []
+                    }
+                ],
+                "description": "Updates an Android category for the given Ratatoskr App / Android group",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AndroidGroups"
+                ],
+                "summary": "Updates android category",
+                "operationId": "handle_update_android_category",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "UUID of user-owned application",
+                        "name": "app_uuid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "UUID of android group",
+                        "name": "g_uuid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "UUID of android category",
+                        "name": "c_uuid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success Result",
+                        "schema": {
+                            "$ref": "#/definitions/rest.StandardResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/rest.StandardResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerToken": []
+                    }
+                ],
+                "description": "Deletes an Android category for the given Ratatoskr App / Android group",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AndroidGroups"
+                ],
+                "summary": "Delete android category",
+                "operationId": "handle_delete_android_category",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "UUID of user-owned application",
+                        "name": "app_uuid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "UUID of android group",
+                        "name": "g_uuid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "UUID of android category",
+                        "name": "c_uuid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success Result",
+                        "schema": {
+                            "$ref": "#/definitions/rest.StandardResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/rest.StandardResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/applications": {
             "get": {
                 "security": [
@@ -206,7 +587,7 @@ var doc = `{
                 "tags": [
                     "Applications"
                 ],
-                "summary": "Gets the general info about specific application uuid",
+                "summary": "Gets application details",
                 "operationId": "handle_get_application_detail",
                 "parameters": [
                     {
@@ -529,6 +910,133 @@ var doc = `{
         }
     },
     "definitions": {
+        "applications.AndroidGroupCategoryModel": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "enable_badge": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "led": {
+                    "type": "integer"
+                },
+                "led_color": {
+                    "type": "string"
+                },
+                "lock_screen": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "priority": {
+                    "type": "string"
+                },
+                "sound": {
+                    "type": "integer"
+                },
+                "sound_name": {
+                    "type": "string"
+                },
+                "uuid": {
+                    "type": "string"
+                },
+                "vibration": {
+                    "type": "integer"
+                },
+                "vibration_pattern": {
+                    "type": "string"
+                }
+            }
+        },
+        "applications.AndroidGroupModel": {
+            "type": "object",
+            "properties": {
+                "categories": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/applications.AndroidGroupCategoryModel"
+                    }
+                },
+                "group_name": {
+                    "type": "string"
+                },
+                "group_uuid": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "handlers.AndroidCategoryRequest": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string",
+                    "example": "Test Description"
+                },
+                "enable_badge": {
+                    "type": "integer",
+                    "example": 0
+                },
+                "led": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "led_color": {
+                    "type": "string",
+                    "example": "#3300ccc"
+                },
+                "lock_screen": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "name": {
+                    "type": "string",
+                    "example": "Test Group"
+                },
+                "priority": {
+                    "type": "string",
+                    "example": "3"
+                },
+                "sound": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "sound_name": {
+                    "type": "string",
+                    "example": "resource_name"
+                },
+                "vibration": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "vibration_pattern": {
+                    "type": "string",
+                    "example": "xxxx"
+                }
+            }
+        },
+        "handlers.AndroidGroupRequest": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
         "handlers.ApplicationRequest": {
             "type": "object",
             "required": [

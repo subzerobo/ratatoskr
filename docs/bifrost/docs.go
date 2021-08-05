@@ -80,9 +80,9 @@ var doc = `{
                 }
             }
         },
-        "/v1/devices": {
-            "post": {
-                "description": "Register a new device to one of your Ratatosk apps",
+        "/v1/applications/{APP_UUID}/users/{EXTERNAL_USER_ID}": {
+            "put": {
+                "description": "Update an existing device's tags in one of your Ratatoskr apps using the External User ID.",
                 "consumes": [
                     "application/json"
                 ],
@@ -92,7 +92,134 @@ var doc = `{
                 "tags": [
                     "Devices"
                 ],
-                "summary": "Register a new device to one of your Ratatosk apps",
+                "summary": "Update an existing device's tags in one of your Ratatoskr apps using the External User ID.",
+                "operationId": "handle_edit_user_tags",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "App Unique Identifier UUID",
+                        "name": "APP_UUID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "External User ID",
+                        "name": "EXTERNAL_USER_ID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "List of User Tags",
+                        "name": "UserTags",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.UserTagRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success Result",
+                        "schema": {
+                            "$ref": "#/definitions/rest.StandardResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Validation error",
+                        "schema": {
+                            "$ref": "#/definitions/rest.StandardResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/rest.StandardResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/devices": {
+            "get": {
+                "security": [
+                    {
+                        "APIKey": []
+                    }
+                ],
+                "description": "View the details of multiple devices in one of your Ratatoskr apps",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Devices"
+                ],
+                "summary": "View the details of multiple devices in one of your Ratatoskr apps",
+                "operationId": "handle_view_devices",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "UUID of device",
+                        "name": "app_uuid",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "How many devices to return. Max is 300. Default is 300",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Previous max record id.Default is 0. Results are sorted by id;",
+                        "name": "last_device_id",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success Result",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/rest.StandardResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/handlers.DeviceViewResponse"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/rest.StandardResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Register a new device to one of your Ratatoskr apps",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Devices"
+                ],
+                "summary": "Register a new device to one of your Ratatoskr apps",
                 "operationId": "handle_add_device",
                 "parameters": [
                     {
@@ -116,6 +243,115 @@ var doc = `{
                         "description": "Validation error",
                         "schema": {
                             "$ref": "#/definitions/rest.StandardResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/rest.StandardResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/devices/{UUID}": {
+            "put": {
+                "description": "Update an existing device in one of your Ratatoskr apps",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Devices"
+                ],
+                "summary": "Update an existing device in one of your Ratatoskr apps",
+                "operationId": "handle_edit_device",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Device Unique Identifier",
+                        "name": "UUID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Create Device Request",
+                        "name": "Device",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.DeviceRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success Result",
+                        "schema": {
+                            "$ref": "#/definitions/rest.StandardResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Validation error",
+                        "schema": {
+                            "$ref": "#/definitions/rest.StandardResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/rest.StandardResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/devices/{uuid}/{app_uuid}": {
+            "get": {
+                "description": "View the details of an existing device in one of your Ratatoskr apps",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Devices"
+                ],
+                "summary": "View the details of an existing device in one of your Ratatoskr apps",
+                "operationId": "handle_view_device",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "UUID of application",
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "UUID of device",
+                        "name": "app_uuid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success Result",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/rest.StandardResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/handlers.DeviceViewResponse"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "500": {
@@ -221,6 +457,71 @@ var doc = `{
                 }
             }
         },
+        "handlers.DeviceViewResponse": {
+            "type": "object",
+            "properties": {
+                "adid": {
+                    "type": "string",
+                    "example": "dbdf14cc-a5e7-445f-a972-2112ab335b14"
+                },
+                "app_version": {
+                    "type": "string",
+                    "example": "2.1.1"
+                },
+                "badge_count": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "device_model": {
+                    "type": "string",
+                    "example": "SM-989F"
+                },
+                "device_os": {
+                    "type": "string",
+                    "example": "Android"
+                },
+                "device_os_version": {
+                    "type": "string",
+                    "example": "8.0"
+                },
+                "device_type": {
+                    "type": "string",
+                    "example": "android | ios | web"
+                },
+                "device_vendor": {
+                    "type": "string",
+                    "example": "Samsung"
+                },
+                "external_user_id": {
+                    "type": "string",
+                    "example": "u-12"
+                },
+                "identifier": {
+                    "type": "string",
+                    "example": "APA91bHbYHk7aq-Uam_2pyJ2qbZvqllyyh2wjfPRaw5gLEX2SUlQBRvOc6sck1sa7H7nGeLNlDco8lXj83HWWwzV..."
+                },
+                "language": {
+                    "type": "string",
+                    "example": "fa"
+                },
+                "last_active_at": {
+                    "type": "string"
+                },
+                "tags": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "timezone": {
+                    "type": "integer",
+                    "example": 12600
+                }
+            }
+        },
         "handlers.HealthCheckResponse": {
             "type": "object",
             "properties": {
@@ -256,6 +557,20 @@ var doc = `{
                 }
             }
         },
+        "handlers.UserTagRequest": {
+            "type": "object",
+            "required": [
+                "tags"
+            ],
+            "properties": {
+                "tags": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
         "rest.StandardResponse": {
             "type": "object",
             "properties": {
@@ -276,6 +591,13 @@ var doc = `{
                     "example": 0
                 }
             }
+        }
+    },
+    "securityDefinitions": {
+        "APIKey": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }`

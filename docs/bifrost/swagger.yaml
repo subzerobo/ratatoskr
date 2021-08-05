@@ -68,6 +68,53 @@ definitions:
     - device_type
     - identifier
     type: object
+  handlers.DeviceViewResponse:
+    properties:
+      adid:
+        example: dbdf14cc-a5e7-445f-a972-2112ab335b14
+        type: string
+      app_version:
+        example: 2.1.1
+        type: string
+      badge_count:
+        example: 1
+        type: integer
+      created_at:
+        type: string
+      device_model:
+        example: SM-989F
+        type: string
+      device_os:
+        example: Android
+        type: string
+      device_os_version:
+        example: "8.0"
+        type: string
+      device_type:
+        example: android | ios | web
+        type: string
+      device_vendor:
+        example: Samsung
+        type: string
+      external_user_id:
+        example: u-12
+        type: string
+      identifier:
+        example: APA91bHbYHk7aq-Uam_2pyJ2qbZvqllyyh2wjfPRaw5gLEX2SUlQBRvOc6sck1sa7H7nGeLNlDco8lXj83HWWwzV...
+        type: string
+      language:
+        example: fa
+        type: string
+      last_active_at:
+        type: string
+      tags:
+        additionalProperties:
+          type: string
+        type: object
+      timezone:
+        example: 12600
+        type: integer
+    type: object
   handlers.HealthCheckResponse:
     properties:
       binary_uptime:
@@ -90,6 +137,15 @@ definitions:
         type: number
       status:
         type: string
+    type: object
+  handlers.UserTagRequest:
+    properties:
+      tags:
+        additionalProperties:
+          type: string
+        type: object
+    required:
+    - tags
     type: object
   rest.StandardResponse:
     properties:
@@ -147,11 +203,94 @@ paths:
       summary: Pod/Container health check
       tags:
       - General
+  /v1/applications/{APP_UUID}/users/{EXTERNAL_USER_ID}:
+    put:
+      consumes:
+      - application/json
+      description: Update an existing device's tags in one of your Ratatoskr apps
+        using the External User ID.
+      operationId: handle_edit_user_tags
+      parameters:
+      - description: App Unique Identifier UUID
+        in: path
+        name: APP_UUID
+        required: true
+        type: string
+      - description: External User ID
+        in: path
+        name: EXTERNAL_USER_ID
+        required: true
+        type: string
+      - description: List of User Tags
+        in: body
+        name: UserTags
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.UserTagRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success Result
+          schema:
+            $ref: '#/definitions/rest.StandardResponse'
+        "400":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/rest.StandardResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.StandardResponse'
+      summary: Update an existing device's tags in one of your Ratatoskr apps using
+        the External User ID.
+      tags:
+      - Devices
   /v1/devices:
+    get:
+      description: View the details of multiple devices in one of your Ratatoskr apps
+      operationId: handle_view_devices
+      parameters:
+      - description: UUID of device
+        in: query
+        name: app_uuid
+        required: true
+        type: string
+      - description: How many devices to return. Max is 300. Default is 300
+        in: query
+        name: limit
+        type: integer
+      - description: Previous max record id.Default is 0. Results are sorted by id;
+        in: query
+        name: last_device_id
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success Result
+          schema:
+            allOf:
+            - $ref: '#/definitions/rest.StandardResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/handlers.DeviceViewResponse'
+                  type: array
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.StandardResponse'
+      security:
+      - APIKey: []
+      summary: View the details of multiple devices in one of your Ratatoskr apps
+      tags:
+      - Devices
     post:
       consumes:
       - application/json
-      description: Register a new device to one of your Ratatosk apps
+      description: Register a new device to one of your Ratatoskr apps
       operationId: handle_add_device
       parameters:
       - description: Create Device Request
@@ -175,7 +314,83 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/rest.StandardResponse'
-      summary: Register a new device to one of your Ratatosk apps
+      summary: Register a new device to one of your Ratatoskr apps
       tags:
       - Devices
+  /v1/devices/{UUID}:
+    put:
+      consumes:
+      - application/json
+      description: Update an existing device in one of your Ratatoskr apps
+      operationId: handle_edit_device
+      parameters:
+      - description: Device Unique Identifier
+        in: path
+        name: UUID
+        required: true
+        type: string
+      - description: Create Device Request
+        in: body
+        name: Device
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.DeviceRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success Result
+          schema:
+            $ref: '#/definitions/rest.StandardResponse'
+        "400":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/rest.StandardResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.StandardResponse'
+      summary: Update an existing device in one of your Ratatoskr apps
+      tags:
+      - Devices
+  /v1/devices/{uuid}/{app_uuid}:
+    get:
+      description: View the details of an existing device in one of your Ratatoskr
+        apps
+      operationId: handle_view_device
+      parameters:
+      - description: UUID of application
+        in: path
+        name: uuid
+        required: true
+        type: string
+      - description: UUID of device
+        in: path
+        name: app_uuid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success Result
+          schema:
+            allOf:
+            - $ref: '#/definitions/rest.StandardResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/handlers.DeviceViewResponse'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.StandardResponse'
+      summary: View the details of an existing device in one of your Ratatoskr apps
+      tags:
+      - Devices
+securityDefinitions:
+  APIKey:
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"
