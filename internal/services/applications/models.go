@@ -46,3 +46,32 @@ type AndroidGroupCategoryModel struct {
 	UpdatedAt           time.Time `json:"-"`
 	AndroidGroupID      uint      `json:"-"`
 }
+
+// Cache Data Models
+
+type ApplicationCachedDataModel struct {
+	ChannelList              []ChannelListDataModel `json:"chnl_lst"`
+	UseIdentityVerification  bool                   `json:"use_email_auth"`
+	FirebaseAnalytics        bool                   `json:"fba"`
+	FCMId                    string                 `json:"android_sender_id"`
+	CleanGroupOnSummaryClick bool                   `json:"clear_group_on_summary_click"`
+	ReceiveReceipt           bool                   `json:"receive_receipts_enable"`
+}
+
+type ChannelListDataModel struct {
+	Channel          ChannelDataModel `json:"chnl"`
+	Sound            string           `json:"sound,omitempty"`
+	VibrationPattern string           `json:"vib_pt,omitempty"`
+	Priority         string           `json:"pri,omitempty"`
+	Badge            string           `json:"bdg,omitempty"`
+	LedColor         string           `json:"led_color,omitempty"`
+	LockScreen       int              `json:"vis,omitempty"`
+}
+
+type ChannelDataModel struct {
+	ID          string `json:"id"`
+	Name        string `json:"nm"`
+	Description string `json:"dscr"`
+	GroupID     string `json:"grp_id"`
+	GroupName   string `json:"grp_nm"`
+}

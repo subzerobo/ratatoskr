@@ -64,8 +64,10 @@ func SetupRouter(handler *handlers.BifrostHandler, config PrometheusConfig, jwtC
 			publicV1.GET("/devices", handler.HandleViewDevices)
 			publicV1.PUT("/devices/:uuid", handler.HandleEditDevice)
 
-			// Edit User Tags
-			publicV1.PUT("/applications/:app_uuid/users/:external_user_id", handler.HandleEditUserTags)
+			// Application
+			publicV1.PUT("/apps/:app_uuid/users/:external_user_id", handler.HandleEditUserTags)
+			publicV1.GET("/apps/:app_uuid/android_params", handler.HandleAndroidParams)
+
 		}
 
 	}

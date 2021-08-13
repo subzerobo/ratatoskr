@@ -57,10 +57,10 @@ func (s *server) Initialize(logger *logger.StandardLogger) error {
 	if err != nil {
 		return err
 	}
-	rs.CreateRedisStore(redisClient)
+	cache := rs.CreateRedisStore(redisClient)
 	
 	// Create Services
-	applicationService := applications.CreateService(repository)
+	applicationService := applications.CreateService(repository, cache)
 	deviceService := devices.CreateService(repository)
 	
 	// REST Handler

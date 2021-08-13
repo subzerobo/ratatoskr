@@ -13,7 +13,7 @@ import (
 // @Summary Register a new device to one of your Ratatoskr apps
 // @Description Register a new device to one of your Ratatoskr apps
 // @ID handle_add_device
-// @Tags Devices
+// @Tags Devices,SDK
 // @Accept	json
 // @Produce	json
 // @Param Device body DeviceRequest true "Create Device Request"
@@ -62,7 +62,7 @@ func (h *BifrostHandler) HandleAddDevice(c *gin.Context) {
 // @Summary View the details of an existing device in one of your Ratatoskr apps
 // @Description View the details of an existing device in one of your Ratatoskr apps
 // @ID handle_view_device
-// @Tags Devices
+// @Tags Devices,SDK
 // @Produce	json
 // @Param uuid path string true "UUID of application"
 // @Param app_uuid path string true "UUID of device"
@@ -87,7 +87,7 @@ func (h *BifrostHandler) HandleViewDevice(c *gin.Context) {
 // @Summary View the details of multiple devices in one of your Ratatoskr apps
 // @Description View the details of multiple devices in one of your Ratatoskr apps
 // @ID handle_view_devices
-// @Tags Devices
+// @Tags Devices,SDK
 // @Produce	json
 // @Param app_uuid query string true "UUID of device"
 // @Param limit query int false "How many devices to return. Max is 300. Default is 300"
@@ -126,7 +126,7 @@ func (h *BifrostHandler) HandleViewDevices(c *gin.Context) {
 // @Summary Update an existing device in one of your Ratatoskr apps
 // @Description Update an existing device in one of your Ratatoskr apps
 // @ID handle_edit_device
-// @Tags Devices
+// @Tags Devices,SDK
 // @Accept	json
 // @Produce	json
 // @Param UUID path string true "Device Unique Identifier"
@@ -181,7 +181,7 @@ func (h *BifrostHandler) HandleEditDevice(c *gin.Context) {
 // @Summary Update an existing device's tags in one of your Ratatoskr apps using the External User ID.
 // @Description Update an existing device's tags in one of your Ratatoskr apps using the External User ID.
 // @ID handle_edit_user_tags
-// @Tags Devices
+// @Tags Devices,SDK
 // @Accept	json
 // @Produce	json
 // @Param APP_UUID path string true "App Unique Identifier UUID"

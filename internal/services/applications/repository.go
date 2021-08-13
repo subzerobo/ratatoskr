@@ -17,5 +17,9 @@ type Repository interface {
 	CreateAndroidCategory(appID uint, groupUUID string, model AndroidGroupCategoryModel) error
 	UpdateAndroidCategory(appID uint, groupUUID string, model AndroidGroupCategoryModel) error
 	DeleteAndroidCategory(appID uint, groupUUID string, categoryUUID string,) error
+}
 
+type Cache interface {
+	GetApplicationData(appUUID string) (*ApplicationCachedDataModel, error)
+	SetApplicationData(appUUID string, model ApplicationCachedDataModel) error
 }
